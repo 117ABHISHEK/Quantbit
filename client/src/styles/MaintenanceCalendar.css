@@ -1,0 +1,280 @@
+.calendar-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.calendar-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-number.overdue {
+  color: var(--destructive);
+}
+
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.nav-btn {
+  padding: 8px 12px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: var(--primary);
+  color: var(--text-light);
+}
+
+.month-year {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.status-filter {
+  padding: 8px 12px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.weekday {
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  background-color: var(--secondary);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.calendar-day {
+  min-height: 80px;
+  padding: 4px;
+  background-color: var(--primary-dark, rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.calendar-day.empty {
+  background-color: transparent;
+  border: none;
+}
+
+.calendar-day.has-maintenance {
+  background-color: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.calendar-day.overdue {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.day-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.maintenance-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.indicator {
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-planned {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: var(--primary);
+}
+
+.status-in\ progress {
+  background-color: rgba(245, 158, 11, 0.3);
+  color: var(--warning);
+}
+
+.status-completed {
+  background-color: rgba(16, 185, 129, 0.3);
+  color: var(--success);
+}
+
+.indicator.more {
+  background-color: var(--text-secondary);
+  color: var(--text-light);
+  cursor: help;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.event-item:hover {
+  background-color: var(--primary-dark, rgba(59, 130, 246, 0.1));
+}
+
+.event-item.overdue {
+  border-color: rgba(239, 68, 68, 0.5);
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.event-date {
+  min-width: 90px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.event-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.event-equipment {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.event-type {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.event-status {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-planned {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: var(--primary);
+}
+
+.badge-in\ progress {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.badge-completed {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.badge-cancelled {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: var(--text-secondary);
+}
+
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
