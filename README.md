@@ -1,234 +1,140 @@
 # Smart Factory Maintenance Tracker
 
-A full-stack web application for managing factory equipment maintenance, scheduling, and alerts. Built with React, Express, and MongoDB.
+A full-stack web application for managing factory equipment, scheduling maintenance, tracking spare-parts, logging machine readings, and generating reports. Built with React (Vite), Express, and MongoDB.
 
-## Features
+## What’s new / Key Features
 
-- **Equipment Management**: Register and track factory equipment with detailed specifications
-- **Maintenance Scheduling**: Plan preventive, corrective, and inspection maintenance
-- **Alert System**: Real-time alerts for maintenance deadlines and equipment issues
-- **Dashboard**: Overview of equipment status, active alerts, and maintenance metrics
-- **Professional UI**: Dark theme with industrial blue accents for optimal factory floor visibility
+- Equipment Management: register and manage equipment (serial, location, criticality, operating hours).
+- Maintenance Scheduling: schedule preventive, corrective, and inspection maintenance; record parts used.
+- Machine Readings: log daily readings (temperature, pressure, vibration, runtime hours).
+- Auto-calculated Maintenance: server computes `nextMaintenanceDue` and `maintenanceStatus` (OK / Due Soon / Overdue).
+- Visual Indicators: dashboard and equipment list highlight overdue machines (red), due-soon (amber), and OK (green).
+- PDF Reports: generate downloadable PDF reports that include equipment summary, maintenance history (with parts), and recent readings. Supports date-range and equipment filters.
+- Maintenance Calendar: simple calendar view grouping maintenance by scheduled date.
 
 ## Tech Stack
 
-- **Frontend**: React 18, Vite, CSS3
-- **Backend**: Express.js, Node.js
-- **Database**: MongoDB
-- **Tools**: npm, nodemon
+- Frontend: React 18, Vite, CSS3
+- Backend: Express.js, Node.js
+- Database: MongoDB (Mongoose)
 
-## Prerequisites
+## Quick Start (local development)
 
-- Node.js (v14 or higher)
-- MongoDB (local or Atlas cloud)
-- npm or yarn
+Prerequisites: Node.js (v14+), MongoDB (local or Atlas), npm or pnpm.
 
-## Local Setup
+1) Start MongoDB (local) or configure Atlas and set `MONGODB_URI` in `server/.env`.
 
-### 1. MongoDB Setup
+2) Start the backend:
 
-**Option A: Local MongoDB**
-\`\`\`bash
-# Install MongoDB Community Edition
-# macOS:
-brew install mongodb-community
-
-# Windows: Download from https://www.mongodb.com/try/download/community
-
-# Start MongoDB service
-mongod
-\`\`\`
-
-**Option B: MongoDB Atlas (Cloud)**
-1. Create account at https://www.mongodb.com/cloud/atlas
-2. Create a free cluster
-3. Get your connection string
-4. Replace in `.env` file
-
-### 2. Backend Setup
-
-\`\`\`bash
-# Navigate to server directory
-cd server
-
-# Install dependencies
+```powershell
+cd D:\Quantbit\server
 npm install
-
-# Create .env file
-cp .env.example .env
-
-# Edit .env with your MongoDB URI
-# MONGODB_URI=mongodb://localhost:27017/factory-maintenance
-# PORT=5000
-
-# Start development server
+# create .env (or copy .env.example) and set MONGODB_URI and PORT if needed
 npm run dev
-# Server runs on http://localhost:5000
-\`\`\`
+# or: node server.js
+```
 
-### 3. Frontend Setup
+3) Start the frontend (Vite):
 
-\`\`\`bash
-# In a new terminal, navigate to client directory
-cd client
-
-# Install dependencies
+```powershell
+cd D:\Quantbit\client
 npm install
-
-# Start development server
 npm run dev
-# Frontend runs on http://localhost:3000
-\`\`\`
+# open the URL Vite shows (usually http://localhost:5173)
+```
 
-## API Endpoints
+Note: if port 5000 is in use, either stop the process using it or start the server with a different PORT, e.g. `powershell $env:PORT=5001; node server.js`.
+
+## App Navigation (client)
+
+- Dashboard — overview metrics and alerts
+- Equipment — add/edit/delete equipment, log readings, view maintenance status
+- Maintenance — schedule maintenance and record parts used
+- Calendar — grouped maintenance view by date
+- Reports — generate and download maintenance PDF reports (filter by date and equipment)
+
+## API Endpoints (important additions)
 
 ### Equipment
-- `GET /api/equipment` - Get all equipment
-- `GET /api/equipment/:id` - Get specific equipment
-- `POST /api/equipment` - Create equipment
-- `PUT /api/equipment/:id` - Update equipment
-- `DELETE /api/equipment/:id` - Delete equipment
+- `GET /api/equipment` — Get all equipment (each item includes `maintenanceStatus` and `nextMaintenanceDue`)
+- `GET /api/equipment/:id`
+- `POST /api/equipment` — Create equipment (server computes `nextMaintenanceDue` when possible)
+- `PUT /api/equipment/:id`
+- `DELETE /api/equipment/:id`
 
 ### Maintenance
-- `GET /api/maintenance` - Get all maintenance records
-- `GET /api/maintenance/status/:status` - Get maintenance by status
-- `POST /api/maintenance` - Create maintenance record
-- `PUT /api/maintenance/:id` - Update maintenance
-- `DELETE /api/maintenance/:id` - Delete maintenance
+- `GET /api/maintenance` — Get all maintenance records
+- `GET /api/maintenance/status/:status` — Get maintenance by status
+- `POST /api/maintenance` — Create maintenance record (body can include `partsUsed` array)
+- `PUT /api/maintenance/:id` — Update maintenance
+- `DELETE /api/maintenance/:id`
 
-### Alerts
-- `GET /api/alerts` - Get all alerts
-- `GET /api/alerts/unresolved` - Get unresolved alerts
-- `POST /api/alerts` - Create alert
-- `PUT /api/alerts/:id/resolve` - Resolve alert
+### Machine Readings
+- `GET /api/machine-readings` — Get readings (supports `?equipmentId=`)
+- `POST /api/machine-readings` — Create a new machine reading
 
-## Deployment to Vercel
+### Reports
+- `GET /api/reports/pdf` — Generate PDF
 
-### Deploy Frontend to Vercel
+Query parameters supported:
+- `from=YYYY-MM-DD` (optional)
+- `to=YYYY-MM-DD` (optional)
+- `equipmentId=<id>` or `equipmentId=id1,id2` (optional)
 
-\`\`\`bash
-# Navigate to client directory
-cd client
+Example: `/api/reports/pdf?from=2025-11-01&to=2025-11-30&equipmentId=615c...`
 
-# Build the project
-npm run build
+## Generating Reports (UI)
 
-# Install Vercel CLI
-npm install -g vercel
+Use the Reports page in the app to pick a date range and/or equipment, then click "Generate PDF". The browser will download a file containing:
 
-# Deploy
-vercel
-\`\`\`
+- Equipment summary and next scheduled maintenance
+- Maintenance history (with `partsUsed` details)
+- Recent machine readings in the selected date range
 
-### Deploy Backend as Serverless Functions
+## Styling and Theme
 
-Create `api/equipment.js` in your Vercel project root:
+The project uses CSS variables defined at `client/src/index.css`. The current color palette uses the following variables (feel free to edit):
 
-\`\`\`javascript
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import { createServer } from 'http';
+```css
+/* Primary Colors */
+--primary: #2563eb;
+--primary-dark: #1e40af;
+--primary-light: #3b82f6;
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+/* Background */
+--bg-primary: #0f172a;
+--bg-secondary: #1e293b;
+--bg-card: #334155;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI);
+/* Status Colors */
+--success: #10b981;
+--warning: #f59e0b;
+--danger: #ef4444;
+--info: #06b6d4;
 
-// Import routes and attach to app
+/* Text */
+--text-primary: #f8fafc;
+--text-secondary: #cbd5e1;
+--text-muted: #94a3b8;
 
-export default app;
-\`\`\`
+/* Accent */
+--accent: #8b5cf6;
+```
 
-Or use Vercel's Node.js API routes or consider using a separate hosting for Express (Render.com, Railway.app, Heroku alternatives).
-
-## Project Structure
-
-\`\`\`
-factory-maintenance-tracker/
-├── server/
-│   ├── config/
-│   │   └── db.js
-│   ├── models/
-│   │   ├── Equipment.js
-│   │   ├── Maintenance.js
-│   │   ├── Alert.js
-│   │   └── User.js
-│   ├── routes/
-│   │   ├── equipment.js
-│   │   ├── maintenance.js
-│   │   └── alerts.js
-│   ├── server.js
-│   ├── package.json
-│   └── .env
-│
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Sidebar.jsx
-│   │   │   ├── Card.jsx
-│   │   │   └── Button.jsx
-│   │   ├── pages/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Equipment.jsx
-│   │   │   ├── Maintenance.jsx
-│   │   │   └── Alerts.jsx
-│   │   ├── styles/
-│   │   │   ├── Dashboard.css
-│   │   │   ├── Equipment.css
-│   │   │   ├── Maintenance.css
-│   │   │   └── Alerts.css
-│   │   ├── App.jsx
-│   │   ├── index.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-│
-└── README.md
-\`\`\`
-
-## Usage
-
-1. **Add Equipment**: Go to Equipment Management, click "Add Equipment", fill in details
-2. **Schedule Maintenance**: Navigate to Maintenance, click "Schedule Maintenance"
-3. **Monitor Alerts**: Check Alerts page for active maintenance alerts
-4. **View Dashboard**: See overview of all systems on the main dashboard
+The CSS file also provides legacy mappings (`--background`, `--surface`, `--border`, etc.) so existing styles will work immediately.
 
 ## Troubleshooting
 
-**Backend not connecting to MongoDB:**
-- Ensure MongoDB is running
-- Check MONGODB_URI in .env
-- Verify network connectivity
+- Backend not connecting to MongoDB: check `MONGODB_URI` and that MongoDB is reachable.
+- PDF generation slow or memory-heavy: for large datasets, generate Reports using smaller date ranges or specific equipment IDs.
+- Client routes return blank when directly visiting a URL: the server includes an SPA fallback for production builds; in development use the Vite dev server.
 
-**Frontend can't reach backend:**
-- Check if backend server is running on port 5000
-- Verify proxy settings in vite.config.js
-- Check CORS settings in server.js
+## Next Steps / Roadmap
 
-**Port already in use:**
-\`\`\`bash
-# Find process using port
-lsof -i :5000  # macOS/Linux
-netstat -ano | findstr :5000  # Windows
-
-# Kill process
-kill -9 <PID>  # macOS/Linux
-taskkill /PID <PID> /F  # Windows
-\`\`\`
-
-## Future Enhancements
-
-- User authentication and authorization
-- PDF report generation
-- Email notifications
-- Mobile app
-- Real-time WebSocket updates
-- Advanced analytics and charts
-- Integration with IoT sensors
+- Harden server-side validation (enforce max lengths and required fields)
+- Add authentication and role-based access control
+- Improve calendar with a full calendar grid (FullCalendar) and drag/drop scheduling
+- Add export presets and scheduled reports (email)
 
 ## License
 
