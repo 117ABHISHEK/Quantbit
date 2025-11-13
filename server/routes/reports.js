@@ -11,7 +11,7 @@ const router = express.Router()
 router.get("/pdf", async (req, res) => {
   try {
     // support optional date range query: ?from=YYYY-MM-DD&to=YYYY-MM-DD
-    const { from, to } = req.query
+    const { from, to, equipmentId } = req.query
     const fromDate = from ? new Date(from) : null
     const toDate = to ? new Date(to) : null
 
@@ -23,8 +23,23 @@ router.get("/pdf", async (req, res) => {
       if (fromDate) maintQuery.scheduledDate.$gte = fromDate
       if (toDate) maintQuery.scheduledDate.$lte = toDate
     }
+    if (equipmentId) {
+      // support comma-separated ids
+      const ids = equipmentId.split(",").map(s => s.trim()).filter(Boolean)
+      if (ids.length === 1) maintQuery.equipmentId = ids[0]
+      else maintQuery.equipmentId = { $in: ids }
+    }
     const maints = await Maintenance.find(maintQuery).lean()
-    const readings = await MachineReading.find( fromDate || toDate ? { readingDate: { ...(fromDate ? { $gte: fromDate } : {}), ...(toDate ? { $lte: toDate } : {}) } } : {} ).lean()
+    const readingQuery = {}
+    if (fromDate || toDate) readingQuery.readingDate = {}
+    if (fromDate) readingQuery.readingDate.$gte = fromDate
+    if (toDate) readingQuery.readingDate.$lte = toDate
+    if (equipmentId) {
+      const ids = equipmentId.split(",").map(s => s.trim()).filter(Boolean)
+      if (ids.length === 1) readingQuery.equipmentId = ids[0]
+      else readingQuery.equipmentId = { $in: ids }
+    }
+    const readings = await MachineReading.find(Object.keys(readingQuery).length ? readingQuery : {}).lean()
 
     const doc = new PDFDocument({ size: 'LETTER', margins: { top: 50, bottom: 50, left: 50, right: 50 } })
 

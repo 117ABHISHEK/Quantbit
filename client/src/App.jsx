@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard"
 import Equipment from "./pages/Equipment"
 import Maintenance from "./pages/Maintenance"
 import MaintenanceCalendar from "./pages/MaintenanceCalendar"
+import Reports from "./pages/Reports"
 import Alerts from "./pages/Alerts"
 import Sidebar from "./components/Sidebar"
 import "./App.css"
@@ -32,6 +33,7 @@ function App() {
         {currentPage === "equipment" && <Equipment />}
         {currentPage === "maintenance" && <Maintenance />}
         {currentPage === "calendar" && <MaintenanceCalendar />}
+        {currentPage === "reports" && <Reports />}
         {currentPage === "alerts" && <Alerts />}
         {/* Auth removed; keep SPA pages only */}
       </main>
