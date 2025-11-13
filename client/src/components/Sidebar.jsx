@@ -6,6 +6,7 @@ function Sidebar({ currentPage, setCurrentPage }) {
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "equipment", label: "Equipment", icon: "⚙️" },
     { id: "maintenance", label: "Maintenance", icon: "🔧" },
+    { id: "calendar", label: "Calendar", icon: "📅" },
     { id: "alerts", label: "Alerts", icon: "🚨" },
   ]
 

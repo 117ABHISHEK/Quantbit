@@ -48,6 +48,11 @@
   color: var(--accent);
 }
 
+/* Colors for maintenance status metrics */
+.stat-ok { color: var(--success); }
+.stat-duesoon { color: var(--warning); }
+.stat-overdue { color: var(--danger); }
+
 .stat-trend {
   font-size: 12px;
   font-weight: 600;

@@ -190,7 +190,11 @@ function Equipment() {
               <div className="col-name">{item.name}</div>
               <div className="col-category">{item.category}</div>
               <div className="col-serial">{item.serialNumber}</div>
-              <div className={`col-status status-${(item.maintenanceStatus||'unknown').toLowerCase().replace(/\s+/g,'')}`}>{item.maintenanceStatus || item.status}</div>
+              <div className="col-status">
+                <span className={`status-badge status-${(item.maintenanceStatus||'unknown').toLowerCase().replace(/\s+/g,'')}`}>
+                  {item.maintenanceStatus || item.status}
+                </span>
+              </div>
               <div className="col-next">{item.nextMaintenanceDue ? new Date(item.nextMaintenanceDue).toLocaleDateString() : '—'}</div>
               <div className={`col-criticality critical-${item.criticality?.toLowerCase()}`}>{item.criticality}</div>
               <div className="col-actions">

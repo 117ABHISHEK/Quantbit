@@ -17,7 +17,10 @@ function Maintenance() {
     technician: "",
     description: "",
     estimatedHours: 0,
+    partsUsed: [],
   })
+
+  const [partRow, setPartRow] = useState({ partName: '', quantity: 1, cost: '' })
 
   useEffect(() => {
     fetchMaintenance()
@@ -121,6 +124,42 @@ function Maintenance() {
                 Schedule
               </Button>
             </div>
+            <div style={{ marginTop: 12 }}>
+              <h4>Parts Used (optional)</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Part Name</label>
+                  <input value={partRow.partName} onChange={(e) => setPartRow({...partRow, partName: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Quantity</label>
+                  <input type="number" value={partRow.quantity} min={1} onChange={(e) => setPartRow({...partRow, quantity: Number(e.target.value)})} />
+                </div>
+                <div className="form-group">
+                  <label>Cost</label>
+                  <input type="number" step="0.01" value={partRow.cost} onChange={(e) => setPartRow({...partRow, cost: e.target.value})} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <Button type="button" variant="primary" onClick={() => {
+                    if (!partRow.partName) return alert('Enter part name')
+                    setFormData({...formData, partsUsed: [...(formData.partsUsed||[]), {...partRow, replacedDate: new Date().toISOString()}]})
+                    setPartRow({ partName: '', quantity: 1, cost: '' })
+                  }}>Add Part</Button>
+                </div>
+              </div>
+              {formData.partsUsed && formData.partsUsed.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  <strong>Parts to submit:</strong>
+                  <ul>
+                    {formData.partsUsed.map((p, idx) => (
+                      <li key={idx}>{p.partName} x{p.quantity} {p.cost ? `@ $${p.cost}` : ''} <button type="button" onClick={() => {
+                        const next = formData.partsUsed.slice(); next.splice(idx,1); setFormData({...formData, partsUsed: next})
+                      }}>Remove</button></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </form>
         </Card>
       )}
@@ -136,6 +175,16 @@ function Maintenance() {
               <div className="item-details">
                 <p>Type: {item.type}</p>
                 <p>Scheduled: {new Date(item.scheduledDate).toLocaleDateString()}</p>
+                {item.partsUsed && item.partsUsed.length > 0 && (
+                  <div>
+                    <strong>Parts Replaced:</strong>
+                    <ul>
+                      {item.partsUsed.map((p, i) => (
+                        <li key={i}>{p.partName} x{p.quantity} {p.cost ? `@ $${p.cost}` : ''} ({p.replacedDate ? new Date(p.replacedDate).toLocaleDateString() : '-'})</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           ))}

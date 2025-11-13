@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Dashboard from "./pages/Dashboard"
 import Equipment from "./pages/Equipment"
 import Maintenance from "./pages/Maintenance"
+import MaintenanceCalendar from "./pages/MaintenanceCalendar"
 import Alerts from "./pages/Alerts"
 import Sidebar from "./components/Sidebar"
 import "./App.css"
@@ -30,6 +31,7 @@ function App() {
         {currentPage === "dashboard" && <Dashboard />}
         {currentPage === "equipment" && <Equipment />}
         {currentPage === "maintenance" && <Maintenance />}
+        {currentPage === "calendar" && <MaintenanceCalendar />}
         {currentPage === "alerts" && <Alerts />}
         {/* Auth removed; keep SPA pages only */}
       </main>

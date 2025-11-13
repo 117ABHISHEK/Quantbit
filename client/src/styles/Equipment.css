@@ -116,6 +116,32 @@
   color: var(--danger);
 }
 
+/* Maintenance status coloring (computed statuses) */
+.status-overdue {
+  color: var(--danger);
+  font-weight: 600;
+}
+.status-duesoon {
+  color: var(--warning);
+  font-weight: 600;
+}
+.status-ok {
+  color: var(--success);
+  font-weight: 600;
+}
+.status-unknown {
+  color: var(--text-secondary);
+}
+
+/* Small badge style for statuses */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(0,0,0,0.03);
+}
+
 .critical-low {
   color: var(--success);
 }
