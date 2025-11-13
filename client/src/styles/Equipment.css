@@ -28,6 +28,9 @@
   gap: 8px;
 }
 
+/* Prevent form-group from causing its children to overflow/hide in grid layout */
+.form-group { min-width: 0 }
+
 .form-group label {
   color: var(--text-primary);
   font-weight: 500;

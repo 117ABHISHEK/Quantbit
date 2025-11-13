@@ -43,6 +43,19 @@ safeRequireRoute("./routes/alerts", "/api/alerts")
 safeRequireRoute("./routes/machineReadings", "/api/machine-readings")
 safeRequireRoute("./routes/reports", "/api/reports")
 
+// Serve client static files and SPA fallback
+const clientDist = path.join(__dirname, '..', 'client')
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist))
+  app.get('*', (req, res, next) => {
+    // skip API routes
+    if (req.path.startsWith('/api')) return next()
+    const index = path.join(clientDist, 'index.html')
+    if (fs.existsSync(index)) return res.sendFile(index)
+    return res.status(404).send('Not Found')
+  })
+}
+
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "Server is running" })
