@@ -8,6 +8,8 @@ import "../styles/Equipment.css"
 function Equipment() {
   const [equipment, setEquipment] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState("")
   const [formData, setFormData] = useState({
     name: "",
     category: "Motor",
@@ -24,7 +26,7 @@ function Equipment() {
 
   const fetchEquipment = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/equipment")
+      const res = await fetch("/api/equipment")
       const data = await res.json()
       setEquipment(data)
     } catch (error) {
@@ -34,14 +36,16 @@ function Equipment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setFormError("")
+    setIsSubmitting(true)
     try {
-      const res = await fetch("http://localhost:5000/api/equipment", {
+      const res = await fetch("/api/equipment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
       if (res.ok) {
-        fetchEquipment()
+        await fetchEquipment()
         setShowForm(false)
         setFormData({
           name: "",
@@ -52,16 +56,22 @@ function Equipment() {
           criticality: "Medium",
           status: "Active",
         })
+      } else {
+        const err = await res.json().catch(() => ({}))
+        setFormError(err.message || err.error || 'Failed to create equipment')
       }
     } catch (error) {
       console.error("Error creating equipment:", error)
+      setFormError(error.message || 'Network error')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await fetch(`http://localhost:5000/api/equipment/${id}`, {
+        await fetch(`/api/equipment/${id}`, {
           method: "DELETE",
         })
         fetchEquipment()
@@ -139,13 +149,14 @@ function Equipment() {
               </div>
             </div>
             <div className="form-actions">
-              <Button type="submit" variant="success">
-                Create Equipment
+              <Button type="submit" variant="success" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Equipment'}
               </Button>
               <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>
                 Cancel
               </Button>
             </div>
+            {formError && <div className="form-error" style={{ color: 'var(--danger)', marginTop: 8 }}>{formError}</div>}
           </form>
         </Card>
       )}

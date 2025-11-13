@@ -3,10 +3,8 @@ const cors = require("cors")
 const connectDB = require("./config/db")
 
 // Routes
-const equipmentRoutes = require("./routes/equipment")
-const maintenanceRoutes = require("./routes/maintenance")
-const alertRoutes = require("./routes/alerts")
-
+const path = require("path")
+const fs = require("fs")
 const app = express()
 
 // Middleware
@@ -17,9 +15,33 @@ app.use(express.json())
 connectDB()
 
 // Routes
-app.use("/api/equipment", equipmentRoutes)
-app.use("/api/maintenance", maintenanceRoutes)
-app.use("/api/alerts", alertRoutes)
+// route mounting handled safely below
+function safeRequireRoute(routePath, mountPath) {
+  const fullPath = path.join(__dirname, routePath)
+  if (fs.existsSync(fullPath + ".js") || fs.existsSync(fullPath)) {
+    try {
+      const r = require(fullPath)
+      app.use(mountPath, r)
+      console.log(`Mounted route ${mountPath} -> ${routePath}`)
+    } catch (err) {
+      console.error(`Error loading route ${routePath}:`, err)
+      // mount a basic stub so the server doesn't crash
+      const stub = express.Router()
+      stub.use((req, res) => res.status(500).json({ error: "Route failed to load" }))
+      app.use(mountPath, stub)
+    }
+  } else {
+    console.warn(`Route file not found: ${routePath} — mounting stub at ${mountPath}`)
+    const stub = express.Router()
+    stub.use((req, res) => res.status(404).json({ error: "Not implemented" }))
+    app.use(mountPath, stub)
+  }
+}
+safeRequireRoute("./routes/equipment", "/api/equipment")
+safeRequireRoute("./routes/maintenance", "/api/maintenance")
+safeRequireRoute("./routes/alerts", "/api/alerts")
+safeRequireRoute("./routes/machineReadings", "/api/machine-readings")
+safeRequireRoute("./routes/reports", "/api/reports")
 
 // Health check
 app.get("/api/health", (req, res) => {

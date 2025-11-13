@@ -15,7 +15,7 @@ function Alerts() {
 
   const fetchAlerts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/alerts")
+      const res = await fetch("/api/alerts")
       const data = await res.json()
       setAlerts(data)
       setLoading(false)
@@ -27,7 +27,7 @@ function Alerts() {
 
   const handleResolve = async (alertId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/alerts/${alertId}/resolve`, {
+      const res = await fetch(`/api/alerts/${alertId}/resolve`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resolvedBy: "Admin" }),

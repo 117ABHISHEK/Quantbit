@@ -26,7 +26,7 @@ function Maintenance() {
 
   const fetchMaintenance = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/maintenance")
+        const res = await fetch("/api/maintenance")
       const data = await res.json()
       setMaintenance(data)
     } catch (error) {
@@ -36,7 +36,7 @@ function Maintenance() {
 
   const fetchEquipment = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/equipment")
+        const res = await fetch("/api/equipment")
       const data = await res.json()
       setEquipment(data)
     } catch (error) {
@@ -47,7 +47,7 @@ function Maintenance() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch("http://localhost:5000/api/maintenance", {
+        const res = await fetch("/api/maintenance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

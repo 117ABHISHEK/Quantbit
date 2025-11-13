@@ -22,9 +22,9 @@ function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       const [equipRes, alertRes, mainRes] = await Promise.all([
-        fetch("http://localhost:5000/api/equipment"),
-        fetch("http://localhost:5000/api/alerts/unresolved"),
-        fetch("http://localhost:5000/api/maintenance/status/Planned"),
+        fetch("/api/equipment"),
+        fetch("/api/alerts/unresolved"),
+        fetch("/api/maintenance/status/Planned"),
       ])
 
       const equipment = await equipRes.json()
