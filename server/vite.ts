@@ -56,7 +56,11 @@ export async function setupVite(app: Express, server: Server) {
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
+<<<<<<< Updated upstream
         `src="/src/main.tsx?v=${nanoid()}"`,
+=======
+        `src="/src/main.jsx?v=${nanoid()}"`,
+>>>>>>> Stashed changes
       );
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
@@ -68,7 +72,11 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
+<<<<<<< Updated upstream
   const distPath = path.resolve(import.meta.dirname, "public");
+=======
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+>>>>>>> Stashed changes
 
   if (!fs.existsSync(distPath)) {
     throw new Error(

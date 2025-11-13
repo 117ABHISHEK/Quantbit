@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { pgTable, text, varchar, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -75,3 +76,39 @@ export type MaintenanceLog = typeof maintenanceLogs.$inferSelect;
 
 // Export the status enum for validation
 export { machineStatusEnum };
+=======
+import { z } from "zod";
+
+export const MachineStatus = {
+  OK: "ok",
+  DUE_SOON: "due-soon",
+  OVERDUE: "overdue",
+} as const;
+
+export const machineSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  lastMaintenance: z.string().nullable(),
+  nextMaintenance: z.string().nullable(),
+  status: z.enum(["ok", "due-soon", "overdue"]),
+  maintenanceIntervalDays: z.number().default(30),
+});
+
+export const insertMachineSchema = machineSchema.omit({ id: true, status: true, nextMaintenance: true });
+
+export const maintenanceLogSchema = z.object({
+  id: z.string(),
+  machineId: z.string(),
+  performedBy: z.string().optional(),
+  date: z.string(),
+  notes: z.string().optional(),
+});
+
+export const insertMaintenanceLogSchema = maintenanceLogSchema.omit({ id: true });
+
+export type Machine = z.infer<typeof machineSchema>;
+export type InsertMachine = z.infer<typeof insertMachineSchema>;
+export type MaintenanceLog = z.infer<typeof maintenanceLogSchema>;
+export type InsertMaintenanceLog = z.infer<typeof insertMaintenanceLogSchema>;
+>>>>>>> Stashed changes

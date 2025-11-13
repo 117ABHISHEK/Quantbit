@@ -1,7 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+<<<<<<< Updated upstream
 import { insertMachineSchema, insertMaintenanceLogSchema, MachineStatus } from "@shared/schema";
+=======
+import { insertMachineSchema, insertMaintenanceLogSchema, MachineStatus } from "../shared/schema";
+>>>>>>> Stashed changes
 import PDFDocument from "pdfkit";
 import { format, parseISO } from "date-fns";
 
