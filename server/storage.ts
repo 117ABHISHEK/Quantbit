@@ -7,6 +7,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { calculateMachineStatus, calculateNextMaintenance } from "../client/src/services/status";
+import { MongoClient, ObjectId } from "mongodb";
 
 export interface IStorage {
   getMachines(): Promise<Machine[]>;
@@ -200,4 +201,146 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class MongoStorage implements IStorage {
+  private client: MongoClient;
+  private dbName: string;
+
+  constructor(client: MongoClient, dbName = "quantbit") {
+    this.client = client;
+    this.dbName = dbName;
+  }
+
+  private collection<T>(name: string) {
+    return this.client.db(this.dbName).collection<T>(name);
+  }
+
+  async getMachines(): Promise<Machine[]> {
+    const items = await this.collection<Machine>("machines").find().toArray();
+    return items.map((it: any) => ({ ...it, id: it._id.toString() }));
+  }
+
+  async getMachine(id: string): Promise<Machine | undefined> {
+    const objId = new ObjectId(id);
+    const it = await this.collection<Machine>("machines").findOne({ _id: objId });
+    if (!it) return undefined;
+    return { ...it, id: it._id.toString() } as unknown as Machine;
+  }
+
+  async createMachine(insertMachine: InsertMachine): Promise<Machine> {
+    const nowNext = insertMachine.lastMaintenance
+      ? calculateNextMaintenance(insertMachine.lastMaintenance, insertMachine.maintenanceIntervalDays)
+      : null;
+    const status = nowNext ? calculateMachineStatus(nowNext) : MachineStatus.OK;
+
+    const doc: any = {
+      name: insertMachine.name,
+      type: insertMachine.type,
+      lastMaintenance: insertMachine.lastMaintenance || null,
+      nextMaintenance: nowNext,
+      status,
+      maintenanceIntervalDays: insertMachine.maintenanceIntervalDays || 30,
+    };
+
+    const res = await this.collection("machines").insertOne(doc);
+    return { ...doc, id: res.insertedId.toString() } as unknown as Machine;
+  }
+
+  async updateMachine(id: string, updateData: InsertMachine): Promise<Machine> {
+    const objId = new ObjectId(id);
+    const existing = await this.collection<any>("machines").findOne({ _id: objId });
+    if (!existing) throw new Error("Machine not found");
+
+    const nextMaintenance = updateData.lastMaintenance
+      ? calculateNextMaintenance(updateData.lastMaintenance, updateData.maintenanceIntervalDays || existing.maintenanceIntervalDays)
+      : existing.nextMaintenance;
+    const status = nextMaintenance ? calculateMachineStatus(nextMaintenance) : existing.status;
+
+    const updated = {
+      name: updateData.name,
+      type: updateData.type,
+      lastMaintenance: updateData.lastMaintenance || null,
+      nextMaintenance,
+      status,
+      maintenanceIntervalDays: updateData.maintenanceIntervalDays || existing.maintenanceIntervalDays,
+    };
+
+    await this.collection("machines").updateOne({ _id: objId }, { $set: updated });
+    return { ...updated, id } as unknown as Machine;
+  }
+
+  async deleteMachine(id: string): Promise<void> {
+    const objId = new ObjectId(id);
+    await this.collection("machines").deleteOne({ _id: objId });
+    await this.collection("maintenanceLogs").deleteMany({ machineId: id });
+  }
+
+  async getMaintenanceLogs(machineId?: string): Promise<MaintenanceLog[]> {
+    const filter: any = {};
+    if (machineId) filter.machineId = machineId;
+    const items = await this.collection<any>("maintenanceLogs").find(filter).toArray();
+    return items.map((it: any) => ({ ...it, id: it._id.toString() }));
+  }
+
+  async createMaintenanceLog(insertLog: InsertMaintenanceLog): Promise<MaintenanceLog> {
+    const doc: any = { ...insertLog };
+    const res = await this.collection("maintenanceLogs").insertOne(doc);
+
+    // update machine next maintenance and status
+    const machineDoc = await this.collection<any>("machines").findOne({ _id: new ObjectId(insertLog.machineId) });
+    if (machineDoc) {
+      const nextMaintenance = calculateNextMaintenance(insertLog.date, machineDoc.maintenanceIntervalDays);
+      const status = calculateMachineStatus(nextMaintenance);
+      await this.collection("machines").updateOne(
+        { _id: new ObjectId(insertLog.machineId) },
+        { $set: { lastMaintenance: insertLog.date, nextMaintenance, status } }
+      );
+    }
+
+    return { ...doc, id: res.insertedId.toString() } as unknown as MaintenanceLog;
+  }
+
+  async updateMachineStatus(machineId: string): Promise<void> {
+    const machineDoc = await this.collection<any>("machines").findOne({ _id: new ObjectId(machineId) });
+    if (machineDoc && machineDoc.nextMaintenance) {
+      const status = calculateMachineStatus(machineDoc.nextMaintenance);
+      await this.collection("machines").updateOne({ _id: new ObjectId(machineId) }, { $set: { status } });
+    }
+  }
+}
+
+// choose storage based on environment variable MONGO_URL, fallback to MemStorage
+let storageImpl: IStorage;
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
+
+async function initStorage(): Promise<IStorage> {
+  try {
+    const client = new MongoClient(mongoUrl);
+    await client.connect();
+    // ping to ensure connection
+    await client.db().command({ ping: 1 });
+    return new MongoStorage(client, process.env.MONGO_DB_NAME || "quantbit");
+  } catch (err) {
+    // if mongo not available, fallback to memory storage
+    return new MemStorage();
+  }
+}
+
+// simple eager initialization: consumers import { storage } and get a promise-like
+// but to keep current API, export a storage proxy that buffers until init completes
+class StorageProxy implements IStorage {
+  private implPromise: Promise<IStorage>;
+  constructor() {
+    this.implPromise = initStorage();
+  }
+  private async impl() { return this.implPromise; }
+  async getMachines() { return (await this.impl()).getMachines(); }
+  async getMachine(id: string) { return (await this.impl()).getMachine(id); }
+  async createMachine(m: InsertMachine) { return (await this.impl()).createMachine(m); }
+  async updateMachine(id: string, m: InsertMachine) { return (await this.impl()).updateMachine(id, m); }
+  async deleteMachine(id: string) { return (await this.impl()).deleteMachine(id); }
+  async getMaintenanceLogs(mid?: string) { return (await this.impl()).getMaintenanceLogs(mid); }
+  async createMaintenanceLog(l: InsertMaintenanceLog) { return (await this.impl()).createMaintenanceLog(l); }
+  async updateMachineStatus(id: string) { return (await this.impl()).updateMachineStatus(id); }
+}
+
+export const storage: IStorage = new StorageProxy();
