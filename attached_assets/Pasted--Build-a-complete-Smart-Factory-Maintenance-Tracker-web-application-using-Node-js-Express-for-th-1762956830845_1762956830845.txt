@@ -144,7 +144,7 @@ Seed data and dummy frontend data linked.
 
 Clear run instructions in README.
 
-💾 After Replit Builds It
+💾 After Build
 
 Open two shells → run:
 
