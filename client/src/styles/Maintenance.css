@@ -1,0 +1,108 @@
+.maintenance-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.maintenance-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.maintenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.maintenance-item {
+  padding: 16px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.item-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.badge-status {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-planned {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: var(--primary);
+}
+
+.badge-in\ progress {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.badge-completed {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.item-details {
+  display: flex;
+  gap: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}

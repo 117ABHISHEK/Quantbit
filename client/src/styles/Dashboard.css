@@ -1,0 +1,133 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-trend {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trend-up {
+  color: var(--success);
+}
+
+.trend-critical {
+  color: var(--danger);
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background-color: var(--secondary);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.alert-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  min-width: 80px;
+  text-align: center;
+}
+
+.alert-critical {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.alert-high {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.alert-medium {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: var(--primary);
+}
+
+.alert-low {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-message {
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.alert-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.empty-state {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 32px;
+}
